@@ -15,11 +15,12 @@ const int nsamples = 4;
 float X[nsamples][ins] = { {0, 0} ,{1, 1},{1, 0},{0, 1} };
 float y[nsamples] = { 0, 0, 1, 1 };
 
+
+//// some helper functions ////
 // generate a random number between min and max
 float gen_rand(float max, float min) {
 	return ((double)rand() / (RAND_MAX + 1))* (max - min + 1) + min;
 }
-//// some helper functions ////
 // helper functions to generate randomised matrices for intializing weights
 std::vector<std::vector<float>> randn(int lenX, int lenY) {
 	std::vector<std::vector<float>> W;
@@ -35,9 +36,7 @@ std::vector<std::vector<float>> randn(int lenX, int lenY) {
 // generate zero filled vector
 std::vector<float> zeros(int len) {
 	std::vector<float> V;
-	for (int i = 0; i < len; i++) {
-		V.push_back(0);
-	}
+	for (int i = 0; i < len; i++) { V.push_back(0); }
 	return V;
 }
 // declaring and initializing some arrays
@@ -61,17 +60,14 @@ int main() {
 		for (int j = 0; j < nsamples; j++) {
 
 			// feed forward
-			ix[0] = X[j][0];
-			ix[1] = X[j][1];
-
-			for (int j = 0; j < W1[0].size(); j++) {
-				z1[j] = ix[0] * W1[0][j] + ix[1] * W1[0][j];
-				X2[j] = std::sin(z1[j]);
-			}
-
 			z2 = 0;
+			ix[0] = X[j][0]; // input1
+			ix[1] = X[j][1]; // input2
+
 			for (int j = 0; j < nodes; j++) {
-				z2 += X2[0] * W2[j]; 
+				z1[j] = ix[0] * W1[0][j] + ix[1] * W1[0][j];
+				X2[j] = std::sin(z1[j]); // sin used as activation function (for simplicity)
+				z2 += X2[0] * W2[j];
 			}
 			yhat = z2;
 
@@ -86,19 +82,15 @@ int main() {
 				deX1[j] = deY1[j] * std::cos(z1[j]); // cos is derivative of sin
 
 				dW2[j] = deX2 * X2[j] * learn_rate;
-
 				W2[j] = W2[j] + dW2[j]; // update weights
 
 				for (int k = 0; k < ins; k++) {
 
 					dW1[k][j] = deX1[j] * ix[k] * learn_rate;
-
 					W1[k][j] = W1[k][j] + dW1[k][j]; // update weights
 				}
 			}
-
 			ers = ers + std::abs(er);
-
 		}
 		mse.push_back(ers);
 	}
@@ -118,8 +110,8 @@ int main() {
 
 		// feed forward using the trained weights above
 		z2 = 0;
-		ix[0] = X[j][0];
-		ix[1] = X[j][1];
+		ix[0] = X[j][0]; // input1
+		ix[1] = X[j][1]; // input2
 
 		for (int j = 0; j < nodes; j++) {
 			z1[j] = ix[0] * W1[0][j] + ix[1] * W1[0][j];
